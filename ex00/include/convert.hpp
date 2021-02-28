@@ -14,7 +14,8 @@ bool	convert(From value)
 	if (value == 0
 	|| (value >= static_cast<From>(std::numeric_limits<To>::min())
 	&& value <= static_cast<From>(std::numeric_limits<To>::max()))
-	|| (std::isinf(value) && std::numeric_limits<To>::has_infinity))
+	|| (std::isinf(value) && std::numeric_limits<To>::has_infinity)
+	|| (std::isnan(value) && std::numeric_limits<To>::has_quiet_NaN))
 	{
 		cast = static_cast<To>(value);
 		std::cout << cast;
