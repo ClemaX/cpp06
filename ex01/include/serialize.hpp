@@ -4,7 +4,6 @@
 #include <iomanip>
 #include <string>
 #include <cstdlib>
-#include <cstring>
 
 struct Data
 {

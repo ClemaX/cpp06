@@ -39,11 +39,15 @@ std::ostream&	operator<<(std::ostream& os, Data const& data)
 void*	serialize()
 {
 	Data const			data;
-	void				*raw = ::operator new(2 * 8 + sizeof(int));
+	unsigned char		*raw = new unsigned char[2 * 8 + sizeof(int)];
 
-	std::memcpy(raw, data.s1.c_str(), 8);
-	std::memcpy((unsigned char*)raw + 8, &data.n, sizeof(int));
-	std::memcpy((unsigned char*)raw + 8 + sizeof(int), data.s2.c_str(), 8);
+	*reinterpret_cast<u_int64_t*>(raw)
+		= *reinterpret_cast<u_int64_t const*>(data.s1.c_str());
+
+	*reinterpret_cast<int*>(raw + 8) = data.n;
+
+	*reinterpret_cast<u_int64_t*>(raw + 8 + sizeof(int))
+		= *reinterpret_cast<u_int64_t const*>(data.s2.c_str());
 
 	std::cout << std::setw(13) << std::left << "Serialized " << data
 		<< std::endl;
@@ -53,14 +57,21 @@ void*	serialize()
 
 Data*	deserialize(void *raw)
 {
-	Data*		data = new Data;
-	char		s[9];
+	unsigned char const*	serialized =
+		reinterpret_cast<unsigned char const*>(raw);
+	Data*					data = new Data;
+	char					s[9];
 
 	s[8] = '\0';
-	std::memcpy(s, raw, 8);
+
+	*reinterpret_cast<u_int64_t*>(s) =
+		*reinterpret_cast<u_int64_t const*>(serialized);
 	data->s1 = s;
-	std::memcpy(&data->n, (unsigned char*)raw + 8, sizeof(int));
-	std::memcpy(s, (unsigned char*)raw + 8 + sizeof(int), 8);
+
+	data->n = *reinterpret_cast<int const*>(serialized + 8);
+
+	*reinterpret_cast<u_int64_t*>(s) =
+		*reinterpret_cast<u_int64_t const*>(serialized + 8 + sizeof(int));
 	data->s2 = s;
 
 	return data;

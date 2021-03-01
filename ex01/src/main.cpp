@@ -10,5 +10,10 @@ int	main()
 
 	std::cout << "Deserialized " << *data << std::endl;
 
+	delete[] reinterpret_cast<unsigned char*>(serialized);
+	delete data;
+
+	//system("../leaks.sh serialize");
+
 	return 0;
 }
